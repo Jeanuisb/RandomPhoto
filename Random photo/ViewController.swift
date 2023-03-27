@@ -48,12 +48,14 @@ class ViewController: UIViewController {
                                  height: 300)
         imageView.center = view.center
         
+        view.layer.addSublayer(gradient)
+        
         
         getRandomPhoto()
         button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
     }
     
-    @objc func didTapButton(){
+    @objc func didTapButton(){//checks if the user tapped the button.
         
         getRandomPhoto()
         view.backgroundColor = colors.randomElement()
@@ -64,7 +66,7 @@ class ViewController: UIViewController {
             super.viewDidLayoutSubviews()
         
         view.addSubview(button)
-        button.frame = CGRect(
+        button.frame = CGRect( //rearranges button so that we don't have it above the home bar
             x: 30,
             y: view.frame.size.height-150-view.safeAreaInsets.bottom,
             width: view.frame.size.width-60,
@@ -72,19 +74,49 @@ class ViewController: UIViewController {
         )
         
         
-    }
+    }//"https://source.unsplash.com/random/600x600
     
-    func getRandomPhoto() {
+    func getRandomPhoto() { //grabs url for the image
         let urlString = "https://source.unsplash.com/random/600x600"
         let url = URL(string:urlString)!
         
-        guard let data = try? Data(contentsOf: url) else{
-            return
-        }
-        
-        imageView.image = UIImage(data: data)
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+                if let error = error {
+                    self.handleClientError(error)
+                    return
+                }
+                guard let httpResponse = response as? HTTPURLResponse,
+                    (200...299).contains(httpResponse.statusCode) else {
+                    self.handleServerError(response)
+                    return
+                }
+                if let mimeType = httpResponse.mimeType, mimeType == "text/html",
+                    let data = data,
+                    let string = String(data: data, encoding: .utf8) {
+                    DispatchQueue.main.async {
+                        self.webView.loadHTMLString(string, baseURL: url)
+                    }
+                }
+            }
+            task.resume()
         
     }
+    
+    func gradientBackground(){ //create a moving gradient background
+        
+        let gradient = CAGradientLayer()
+        
+        gradient.colors = [UIColor(red: 0.91, green: 0.78, blue: 0.47, alpha: 1.00).cgColor,
+                                UIColor(red: 0.25, green: 0.61, blue: 0.52, alpha: 1.00).cgColor,
+                                UIColor(red: 0.72, green: 0.62, blue: 0.71, alpha: 1.00).cgColor
+        
+        ]
+        
+        
+    }
+    
+    
+   
 
 
 }
