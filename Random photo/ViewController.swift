@@ -48,7 +48,7 @@ class ViewController: UIViewController {
                                  height: 300)
         imageView.center = view.center
         
-        view.layer.addSublayer(gradient)
+       
         
         
         getRandomPhoto()
@@ -76,31 +76,20 @@ class ViewController: UIViewController {
         
     }//"https://source.unsplash.com/random/600x600
     
-    func getRandomPhoto() { //grabs url for the image
+    func getRandomPhoto() {
         let urlString = "https://source.unsplash.com/random/600x600"
         let url = URL(string:urlString)!
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-                if let error = error {
-                    self.handleClientError(error)
-                    return
-                }
-                guard let httpResponse = response as? HTTPURLResponse,
-                    (200...299).contains(httpResponse.statusCode) else {
-                    self.handleServerError(response)
-                    return
-                }
-                if let mimeType = httpResponse.mimeType, mimeType == "text/html",
-                    let data = data,
-                    let string = String(data: data, encoding: .utf8) {
-                    DispatchQueue.main.async {
-                        self.webView.loadHTMLString(string, baseURL: url)
-                    }
-                }
-            }
-            task.resume()
+        guard let data = try? Data(contentsOf: url) else{
+            return
+        }
+        
+        imageView.image = UIImage(data: data)
         
     }
+
+
+}
     
     func gradientBackground(){ //create a moving gradient background
         
@@ -119,5 +108,5 @@ class ViewController: UIViewController {
    
 
 
-}
+
 
