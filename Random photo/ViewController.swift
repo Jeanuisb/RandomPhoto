@@ -16,6 +16,20 @@ class ViewController: UIViewController {
         return imageView
     }()
     
+   
+        func load(url: URL) {
+            DispatchQueue.global().async { [weak self] in
+                if let data = try? Data(contentsOf: url) {
+                    if let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            self?.image = image
+                        }
+                    }
+            }
+        }
+    }
+    
+    
     private let button: UIButton = {
         let button = UIButton()
         button.backgroundColor = .white
@@ -36,6 +50,8 @@ class ViewController: UIViewController {
     
     ]
     
+    let url = "https://source.unsplash.com/random/600x600"
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,16 +64,15 @@ class ViewController: UIViewController {
                                  height: 300)
         imageView.center = view.center
         
-        view.layer.addSublayer(gradient)
         
         
-        getRandomPhoto()
+        //getRandomPhoto()
         button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
     }
     
     @objc func didTapButton(){//checks if the user tapped the button.
         
-        getRandomPhoto()
+        //getRandomPhoto()
         view.backgroundColor = colors.randomElement()
     }
     
@@ -76,6 +91,7 @@ class ViewController: UIViewController {
         
     }//"https://source.unsplash.com/random/600x600
     
+    /*
     func getRandomPhoto() { //grabs url for the image
         let urlString = "https://source.unsplash.com/random/600x600"
         let url = URL(string:urlString)!
@@ -100,7 +116,25 @@ class ViewController: UIViewController {
             }
             task.resume()
         
+    } */
+    
+    
+    /*func setImageFromStringrURL(stringUrl: String) {
+        if let url = URL(string:"https://source.unsplash.com/random/600x600") {
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+          // Error handling...
+          guard let imageData = data else { return }
+
+          DispatchQueue.main.async {
+            self.image = UIImage(data: imageData)
+              
+          }
+        }.resume()
+      }
     }
+     */
+    
+    
     
     func gradientBackground(){ //create a moving gradient background
         
@@ -109,8 +143,10 @@ class ViewController: UIViewController {
         gradient.colors = [UIColor(red: 0.91, green: 0.78, blue: 0.47, alpha: 1.00).cgColor,
                                 UIColor(red: 0.25, green: 0.61, blue: 0.52, alpha: 1.00).cgColor,
                                 UIColor(red: 0.72, green: 0.62, blue: 0.71, alpha: 1.00).cgColor
-        
+                           
         ]
+        
+        view.layer.addSublayer(gradient)
         
         
     }
